@@ -10,10 +10,15 @@ import 'vuetify/styles'
 
 // Composables
 import { createVuetify } from 'vuetify'
+import { es } from 'vuetify/locale'
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   theme: {
     defaultTheme: 'system',
   },
+  locale: {
+    locale: 'es',
+    messages: { es },
+  }
 })
