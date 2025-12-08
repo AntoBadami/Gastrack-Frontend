@@ -21,6 +21,14 @@
 
     const orders = ref([])
 
+    const headers = [
+        { title: 'Numero', value: 'numero' },
+        { title: 'Estado', value: 'estado' },
+        { title: 'Camion', value: 'camion' },
+        { title: 'Preset', value: 'preset' },
+        { title: 'Detalle', value: 'acciones', sortable: false }
+    ]
+
     onMounted(async () => {
         try {
             const res = await api.get("/orden");
@@ -30,11 +38,7 @@
                 numero: o["numero-orden"],
                 estado: o.estado,
                 camion: o.camion,
-                preset: o.preset,
-                carga: o.carga,
-                temperatura: o.temperatura,
-                densidad: o.densidad,
-                caudal: o.caudal
+                preset: o.preset
             }));
 
         } catch (err) {

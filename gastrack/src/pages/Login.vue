@@ -19,7 +19,7 @@
             <v-form @submit.prevent="handleLogin">
             <v-text-field
                 v-model="email"
-                label="Correo electrónico"
+                label="Usuario"
                 prepend-inner-icon="mdi-email"
             />
 
@@ -60,18 +60,7 @@ const handleLogin = async () => {
         error.value = 'Completá todos los campos.'
         return
     }
-/*
-    if (!email.value.includes('@') || !email.value.includes('.')) {
-        error.value = 'Ingresá un correo válido.'
-        return
-    }*/
 
-    if (password.value.length < 3) {
-        error.value = 'La contraseña debe tener al menos 8 caracteres.'
-        return
-    }
-
-    // todo ok
     try {
         // El backend espera username y password por form-urlencoded
         const params = new URLSearchParams();

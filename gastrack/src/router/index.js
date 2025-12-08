@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/pages/Login.vue'
 import Home from '@/pages/Home.vue'
 import Ordenes from '@/pages/Ordenes.vue'
+import OrdenDetalle from '@/pages/OrdenDetalle.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/ordenes',
     name: 'Ordenes',
     component: Ordenes
+  },
+  {
+    path: '/orden/:numeroOrden',
+    name: 'OrdenDetalle',
+    component: OrdenDetalle
   }
 ]
 
