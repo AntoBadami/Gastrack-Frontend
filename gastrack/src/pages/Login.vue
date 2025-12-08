@@ -45,6 +45,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/services/api'
 
 const email = ref('')
 const password = ref('')
@@ -53,27 +54,44 @@ const error = ref('')
 
 const router = useRouter()
 
-const handleLogin = () => {
+const handleLogin = async () => {
     // Validaciones basicas
     if (!email.value || !password.value) {
         error.value = 'Completá todos los campos.'
         return
     }
-
+/*
     if (!email.value.includes('@') || !email.value.includes('.')) {
         error.value = 'Ingresá un correo válido.'
         return
-    }
+    }*/
 
-    if (password.value.length < 8) {
+    if (password.value.length < 3) {
         error.value = 'La contraseña debe tener al menos 8 caracteres.'
         return
     }
 
     // todo ok
-    error.value = ''
-    console.log('Login:', email.value, password.value)
-    router.push('/home')
+    try {
+        // El backend espera username y password por form-urlencoded
+        const params = new URLSearchParams();
+        params.append("username", email.value);
+        params.append("password", password.value);
+
+        const res = await api.post('/login', params, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        });
+
+        const token = res.data;
+
+        localStorage.setItem("token", token);
+
+        router.push('/home');
+
+    } catch (err) {
+        console.error(err);
+        error.value = "Usuario o contraseña incorrectos.";
+    }
 }
 </script>
 
