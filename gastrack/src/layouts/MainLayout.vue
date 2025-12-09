@@ -1,35 +1,35 @@
 <template>
-    <v-app>
+  <v-app>
 
-        <!-- navbar -->
-        <v-app-bar color="primary" dark app>
-            <v-toolbar-title class="font-weight-bold">Gastrack</v-toolbar-title>
+    <!-- navbar -->
+    <v-app-bar app color="primary" dark>
+      <v-toolbar-title class="font-weight-bold">Gastrack</v-toolbar-title>
 
-            <!-- links -->
-            <v-btn text to="/home">Inicio</v-btn>
-            <v-btn text to="/ordenes">Ordenes</v-btn>
+      <!-- links -->
+      <v-btn text to="/home">Inicio</v-btn>
+      <v-btn text to="/ordenes">Ordenes</v-btn>
 
-            <v-spacer></v-spacer>
+      <v-spacer />
 
-            <!-- cerrar sesion -->
-            <v-btn text @click="logout">
-                Cerrar sesión
-            </v-btn>
-        </v-app-bar>
+      <!-- cerrar sesion -->
+      <v-btn text @click="logout">
+        Cerrar sesión
+      </v-btn>
+    </v-app-bar>
 
-        <v-main class="mt-4">
-        <slot />
-        </v-main>
+    <v-main class="mt-4">
+      <slot />
+    </v-main>
 
-    </v-app>
+  </v-app>
 </template>
 
 <script setup>
-    import { useRouter } from 'vue-router'
-    const router = useRouter()
+  import { useRouter } from 'vue-router'
+  const router = useRouter()
 
-    const logout = () => {
-        // limpia tokens
-        router.push('/')
-    }
+  function logout () {
+    // limpia tokens
+    router.push('/')
+  }
 </script>
