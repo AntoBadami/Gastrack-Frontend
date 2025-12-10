@@ -3,8 +3,25 @@
     <v-container class="pa-4">
       <h1>Ordenes</h1>
 
-      <!-- Filtro -->
-      <FiltroEstado v-model:estado="filtroEstado" />
+      <!-- Filtros -->
+      <v-row class="mb-4" align="center">
+
+        <!-- Filtro por estado -->
+        <v-col cols="12" sm="4">
+          <FiltroEstado v-model:estado="filtroEstado" />
+        </v-col>
+
+        <!-- Barra de busqueda -->
+        <v-col cols="12" sm="4">
+          <v-text-field
+            label="Buscar por numero"
+            v-model="busquedaNumero"
+            type="number"
+            clearable
+          />
+        </v-col>
+
+      </v-row>
 
       <v-card>
         <v-card-text>
@@ -25,6 +42,7 @@
 
   const orders = ref([])
   const filtroEstado = ref(null)
+  const busquedaNumero = ref("")
 
   const headers = [
     { title: 'Numero', value: 'numero' },
@@ -50,11 +68,24 @@
     }
   })
 
-  /* aplica el filtro */
+  //filtros
   const ordenesFiltradas = computed(() => {
-    if (!filtroEstado.value) return orders.value
+    let lista = [...orders.value]
 
-    return orders.value.filter(o => o.estado === filtroEstado.value)
+    // Filtro por estado
+    if (filtroEstado.value) {
+      lista = lista.filter(o => o.estado === filtroEstado.value)
+    }
+
+    // busqueda numero de orden
+    if (busquedaNumero.value) {
+      const texto = busquedaNumero.value.toString().trim()
+      lista = lista.filter(o =>
+        o.numero?.toString().includes(texto)
+      )
+    }
+
+    return lista
   })
 
 </script>

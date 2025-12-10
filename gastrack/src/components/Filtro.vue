@@ -1,18 +1,15 @@
 <template>
-  <v-row class="mb-4">
+    <div class="filtro-estado-wrapper">
 
-    <v-col cols="12" sm="4">
-      <v-select
-        label="Filtrar por estado"
-        :items="items"
-        v-model="estadoSeleccionado"
-        item-title="label"
-        item-value="value"
-        clearable
-      />
-    </v-col>
-
-  </v-row>
+        <v-select
+            label="Filtrar por estado"
+            :items="items"
+            v-model="estadoSeleccionado"
+            item-title="label"
+            item-value="value"
+            clearable
+        />
+    </div>
 </template>
 
 <script setup>
@@ -51,3 +48,9 @@
     })
 
 </script>
+
+<style scoped>
+.filtro-estado-wrapper {
+  min-width: 260px;  
+}
+</style>
