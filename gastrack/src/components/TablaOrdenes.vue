@@ -33,42 +33,14 @@
 
 <script setup>
   import { useRouter } from 'vue-router'
-  import api from '@/services/api'
+  import { descargarPdf } from '@/services/conciliacion.js'
   import EstadoChip from './EstadoChip.vue'
-
   const router = useRouter()
 
   defineProps({
     headers: Array,
     items: Array,
   })
-
-  async function descargarPdf (numeroOrden) {
-    try {
-      const response = await api.get(
-        `/orden/conciliacion/${numeroOrden}`,
-        {
-          responseType: 'blob',
-          headers: {
-            Accept: 'application/pdf',
-          },
-        },
-      )
-
-      const blob = new Blob([response.data], { type: 'application/pdf' })
-      const url = window.URL.createObjectURL(blob)
-
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `conciliacion_${numeroOrden}.pdf`
-      link.click()
-
-      window.URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Error descargando PDF:', error)
-      alert('No se pudo descargar el PDF')
-    }
-  }
 
   function irADetalle (numeroOrden) {
     router.push(`/orden/${numeroOrden}`)
