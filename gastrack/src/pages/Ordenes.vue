@@ -3,9 +3,12 @@
     <v-container class="pa-4">
       <h1>Ordenes</h1>
 
+      <!-- Filtro -->
+      <FiltroEstado v-model:estado="filtroEstado" />
+
       <v-card>
         <v-card-text>
-          <TablaOrdenes :headers="headers" :items="orders" />
+          <TablaOrdenes :headers="headers" :items="ordenesFiltradas" />
         </v-card-text>
       </v-card>
 
@@ -14,12 +17,14 @@
 </template>
 
 <script setup>
-  import { onMounted, ref } from 'vue'
+  import { onMounted, ref, computed } from 'vue'
   import TablaOrdenes from '@/components/TablaOrdenes.vue'
+  import FiltroEstado from '@/components/Filtro.vue'
   import MainLayout from '@/layouts/MainLayout.vue'
   import api from '@/services/api'
 
   const orders = ref([])
+  const filtroEstado = ref(null)
 
   const headers = [
     { title: 'Numero', value: 'numero' },
@@ -43,6 +48,13 @@
     } catch (error) {
       console.error('ERROR:', error)
     }
+  })
+
+  /* aplica el filtro */
+  const ordenesFiltradas = computed(() => {
+    if (!filtroEstado.value) return orders.value
+
+    return orders.value.filter(o => o.estado === filtroEstado.value)
   })
 
 </script>
