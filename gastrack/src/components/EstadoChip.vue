@@ -11,14 +11,12 @@
 
   const color = computed(() => {
     switch (props.estado) {
-      case 'Finalizada': { return 'green'
-      }
-      case 'En proceso': { return 'blue'
-      }
-      case 'Pendiente': { return 'grey'
-      }
-      default: { return 'primary'
-      }
+      case 'PENDIENTE PESAJE INICIAL': return 'grey'
+      case 'PESAJE INICIAL REGISTRADO': return 'blue'
+      case 'ORDEN CERRADA PARA CARGA': return 'orange'
+      case 'FINALIZADO': return 'green'
+      case 'ORDEN CANCELADA': return 'red'
+      default: return 'primary'
     }
   })
 </script>
