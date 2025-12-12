@@ -13,7 +13,7 @@
               <strong>Estado:</strong> {{ estadoOrden(orden.estado) }}
             </v-col>
 
-            <v-col v-if="orden.estado== 'PESAJE_INICIAL_REGISTRADO'" cols="12" md="4">
+            <v-col v-if="orden.estado == 'PESAJE_INICIAL_REGISTRADO'" cols="12" md="4">
               <strong>Carga:</strong> {{ isHabilitadaCarga(orden.cargaHabilitada) }}
             </v-col>
 
@@ -46,7 +46,7 @@
         </v-card-text>
       </v-card>
 
-      <v-card class="mt-4">
+      <v-card v-if="orden.estado != 'PENDIENTE_PESAJE_INICIAL'" class="mt-4">
         <v-card-title>Detalle de Carga</v-card-title>
         <v-divider />
 
@@ -67,7 +67,11 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA'|| orden.estado == 'FINALIZADO'" cols="12" md="6">
+            <v-col
+              v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA' || orden.estado == 'FINALIZADO'"
+              cols="12"
+              md="6"
+            >
               <strong>Fecha de inicio de carga:</strong>
               {{ new Date(orden.fechaInicioCarga).toLocaleString() }}
             </v-col>
@@ -77,9 +81,26 @@
               {{ new Date(orden.fechaFinCarga).toLocaleString() }}
             </v-col>
           </v-row>
+          <v-row
+            v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA' || orden.estado == 'FINALIZADO'"
+          >
+            <v-col cols="12" md="6">
+              <strong>ETA:</strong>
+              {{ eta }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <strong>Tiempo transcurrido:</strong>
+              {{ tiempoTranscurrido }}
+            </v-col>
+          </v-row>
           <v-divider class="my-4" />
-          <h3 v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA'|| orden.estado == 'FINALIZADO'">Última medición recibida</h3>
-          <v-row v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA'|| orden.estado == 'FINALIZADO'">
+          <h3
+            v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA' || orden.estado == 'FINALIZADO'"
+          >
+            Última medición recibida</h3>
+          <v-row
+            v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA' || orden.estado == 'FINALIZADO'"
+          >
             <v-col cols="12" md="3">
               <strong>Masa acumulada:</strong>
               {{ detalle.masaAcumulada || orden.ultimaMasaAcumulada }}
@@ -102,31 +123,7 @@
 
             <v-col cols="12" md="3">
               <strong>Última medición:</strong>
-              {{ detalle.fecha || new Date(orden.fechaFinCarga).toLocaleString() }}
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- Card: Gráficos -->
-      <v-card v-if="orden.estado== 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada" class="mt-4">
-        <v-card-title>Gráficos en tiempo real</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <canvas ref="masaChart" style="height: 200px;" />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <canvas ref="densidadChart" style="height: 200px;" />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <canvas ref="temperaturaChart" style="height: 200px;" />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <canvas ref="caudalChart" style="height: 200px;" />
+              {{ detalle.fecha || new Date(orden.fechaUltimoMedicion).toLocaleString() || '-' }}
             </v-col>
           </v-row>
         </v-card-text>
@@ -172,23 +169,30 @@
 
         </v-card-text>
       </v-card>
+      <!-- Card: Gráficos -->
+      <v-card
+        v-if="(orden.estado == 'PESAJE_INICIAL_REGISTRADO' && orden.cargaHabilitada) || orden.estado == 'ORDEN_CERRADA_PARA_CARGA' || orden.estado == 'FINALIZADO'"
+        class="mt-4"
+      >
+        <GraficosDetalles ref="graficosRef" :detalle="detalle" />
+
+      </v-card>
 
     </v-container>
   </MainLayout>
 </template>
 
 <script setup>
-  import { Client } from '@stomp/stompjs'
-  import { Chart } from 'chart.js/auto'
-  import SockJS from 'sockjs-client'
-  // WS
   import { nextTick, onMounted, ref } from 'vue'
-
   import { useRoute } from 'vue-router'
+  import GraficosDetalles from '@/components/GraficosDetalles.vue'
   import MainLayout from '@/layouts/MainLayout.vue'
   import api from '@/services/api'
+  import { calcularETA, formatearTiempo } from '@/services/calculos'
 
   import { descargarPdf } from '@/services/conciliacion.js'
+  import { conectarWebSocket, desuscribirCabecera } from '@/services/websocket'
+  const graficosRef = ref(null)
 
   const route = useRoute()
   const numero = route.params.numeroOrden
@@ -202,57 +206,70 @@
   })
   const conciliacion = ref(null)
 
-  // Canvas refs
-  const masaChart = ref(null)
-  const densidadChart = ref(null)
-  const temperaturaChart = ref(null)
-  const caudalChart = ref(null)
+  const graficosCreados = ref(false)
 
-  // Chart instances
-  let masaChartInstance
-  let densidadChartInstance
-  let temperaturaChartInstance
-  let caudalChartInstance
+  const tiempoTranscurrido = ref('00:00:00')
+  let timerInterval = null
+  const eta = ref('00:00:00')
+  let wsConectado = false
 
   onMounted(async () => {
     try {
       const resOrden = await api.get(`/orden/numeroOrden/${numero}`)
       orden.value = resOrden.data
-
-      conectarWebSocket() // ⬅️ OK
+      if (!wsConectado) {
+        conectarWebSocket(numero, actualizarDatosDetalle, actualizarOrdenWebSocket)
+        wsConectado = true
+      }
     } catch (error) {
-      console.error('Error cargando orden', error)
+      console.error('Error de conexion websocket', error)
     }
   })
   watch(orden, async o => {
     if (!o || !o.estado) return
 
-    // Si está habilitado para carga → inicializar gráficos
-    if (o.estado === 'PESAJE_INICIAL_REGISTRADO' && o.cargaHabilitada) {
+    // Si está habilitado para carga inicializar gráficos y contador
+    if ((o.estado === 'PESAJE_INICIAL_REGISTRADO' && o.cargaHabilitada) && !graficosCreados.value) {
       await nextTick()
-      crearGraficos()
+      graficosRef.value.crearGraficos()
+
+      graficosCreados.value = true
+      iniciarContador(o.fechaInicioCarga)
     }
 
+    // Si esta cerrado para carga, desconectar WS y tomar datos de grafico desde endpoint
+    if (o.estado === 'ORDEN_CERRADA_PARA_CARGA' || o.estado === 'FINALIZADO') {
+      desuscribirCabecera()
+      detenerContador(o.fechaFinCarga, o.fechaInicioCarga)
+
+      try {
+        const resDatos = await api.get(`/detalle/by-orden/${o.id}`)
+        await nextTick()
+        graficosRef.value.crearGraficos()
+
+        for (const dato of resDatos.data) {
+          actualizarDatosDesdeDetalle(dato)
+        }
+      } catch (error) {
+        console.error('Error obteniendo datos de carga', error)
+      }
+    }
     // Si está FINALIZADO → pedir conciliación
     if (o.estado === 'FINALIZADO') {
       try {
         const res = await api.get(`/orden/conciliacion/${numero}`)
 
-        function fix (n) {
-          return Number(n).toFixed(2)
-        }
-
         conciliacion.value = {
           numeroOrden: res.data['Número de orden'],
           codigoExterno: res.data['Código externo'],
-          pesajeInicial: fix(res.data['Pesaje inicial']),
-          pesajeFinal: fix(res.data['Pesaje final']),
-          productoCargado: fix(res.data['Producto cargado']),
-          netoBalanza: fix(res.data['Neto por balanza']),
-          diferencia: fix(res.data['Diferencia entre balanza y caudalímetro']),
-          promedioCaudal: fix(res.data['Promedio caudal']),
-          promedioTemperatura: fix(res.data['Promedio temperatura']),
-          promedioDensidad: fix(res.data['Promedio densidad']),
+          pesajeInicial: res.data['Pesaje inicial'].toFixed(2),
+          pesajeFinal: res.data['Pesaje final'].toFixed(2),
+          productoCargado: res.data['Producto cargado'].toFixed(2),
+          netoBalanza: res.data['Neto por balanza'].toFixed(2),
+          diferencia: res.data['Diferencia entre balanza y caudalímetro'].toFixed(2),
+          promedioCaudal: res.data['Promedio caudal'].toFixed(2),
+          promedioTemperatura: res.data['Promedio temperatura'].toFixed(2),
+          promedioDensidad: res.data['Promedio densidad'].toFixed(2),
         }
       } catch (error) {
         console.error('Error obteniendo conciliación', error)
@@ -260,95 +277,40 @@
     }
   })
 
-  function crearGraficos () {
-    const baseConfig = label => ({
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label,
-          data: [],
-          tension: 0.3,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        scales: {
-          x: {
-            ticks: {
-              display: false,
-            },
-          },
-        },
-      },
+  function actualizarDatosDesdeDetalle (dato) {
+    actualizarDatosDetalle({
+      fechaUltimoMedicion: dato.fecha,
+      ultimaMasaAcumulada: dato.masaAcumulada,
+      ultimaDensidad: dato.densidad,
+      ultimaTemperatura: dato.temperatura,
+      ultimoCaudal: dato.caudal,
     })
-
-    masaChartInstance = new Chart(masaChart.value, baseConfig('Masa'))
-    densidadChartInstance = new Chart(densidadChart.value, baseConfig('Densidad'))
-    temperaturaChartInstance = new Chart(temperaturaChart.value, baseConfig('Temperatura'))
-    caudalChartInstance = new Chart(caudalChart.value, baseConfig('Caudal'))
   }
 
-  function conectarWebSocket () {
-    const socket = new SockJS('http://localhost:8080/cabecera-websocket', null, {
-      withCredentials: true,
-    })
-
-    const client = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-      debug: () => {},
-    })
-
-    client.onConnect = () => {
-      console.log('✅ WebSocket conectado')
-
-      client.subscribe('/topic/cabecera', message => {
-        const data = JSON.parse(message.body)
-
-        if (data.numeroOrden !== Number(numero)) return
-
-        actualizarGraficos(data)
-      })
-    }
-
-    client.onStompError = frame => {
-      console.error('❌ STOMP error', frame)
-    }
-
-    client.activate()
-  }
-
-  function actualizarGraficos (data) {
+  function actualizarDatosDetalle (data) {
     const fechaFormat = new Date(data.fechaUltimoMedicion).toLocaleString()
-
-    pushDato(masaChartInstance, fechaFormat, data.ultimaMasaAcumulada)
-    pushDato(densidadChartInstance, fechaFormat, data.ultimaDensidad)
-    pushDato(temperaturaChartInstance, fechaFormat, data.ultimaTemperatura)
-    pushDato(caudalChartInstance, fechaFormat, data.ultimoCaudal)
-
-    // ✅ ACTUALIZAR CAMPOS VISIBLES
     detalle.value.masaAcumulada = data.ultimaMasaAcumulada
     detalle.value.densidad = data.ultimaDensidad
     detalle.value.temperatura = data.ultimaTemperatura
     detalle.value.caudal = data.ultimoCaudal
     detalle.value.fecha = fechaFormat
-  }
 
-  function pushDato (chart, label, value) {
-    const max = 100
-    chart.data.labels.push(label)
-    chart.data.datasets[0].data.push(value)
-
-    if (chart.data.labels.length > max) {
-      chart.data.labels.shift()
-      chart.data.datasets[0].data.shift()
+    if (graficosRef.value) {
+      graficosRef.value.actualizarGraficos({
+        fechaUltimoMedicion: data.fechaUltimoMedicion,
+        ultimaMasaAcumulada: data.ultimaMasaAcumulada,
+        ultimaDensidad: data.ultimaDensidad,
+        ultimaTemperatura: data.ultimaTemperatura,
+        ultimoCaudal: data.ultimoCaudal,
+      })
     }
-
-    chart.update()
+    eta.value = calcularETA(
+      orden,
+      data.ultimaMasaAcumulada,
+      data.ultimoCaudal,
+    )
   }
+
   function estadoOrden (estado) {
     switch (estado) {
       case 'PENDIENTE_PESAJE_INICIAL': {
@@ -371,4 +333,38 @@
   function isHabilitadaCarga (habilitado) {
     return habilitado ? 'Abierta' : 'Cerrada'
   }
+  function actualizarOrdenWebSocket (data) {
+    // data viene del backend y ES UNA ORDEN COMPLETA
+    orden.value = {
+      ...orden.value, // conserva campos que no vienen en el WS
+      ...data, // actualiza los recibidos
+    }
+  }
+
+  function iniciarContador (fechaInicioCarga) {
+    if (!fechaInicioCarga) return
+
+    const inicio = new Date(fechaInicioCarga)
+
+    if (timerInterval) clearInterval(timerInterval)
+
+    timerInterval = setInterval(() => {
+      const ahora = new Date()
+      tiempoTranscurrido.value = formatearTiempo(ahora - inicio)
+    }, 1000)
+  }
+
+  function detenerContador (fechaFinCarga, fechaInicioCarga) {
+    if (timerInterval) {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
+
+    if (fechaFinCarga && fechaInicioCarga) {
+      const inicio = new Date(fechaInicioCarga)
+      const fin = new Date(fechaFinCarga)
+      tiempoTranscurrido.value = formatearTiempo(fin - inicio)
+    }
+  }
+
 </script>

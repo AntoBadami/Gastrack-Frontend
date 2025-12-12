@@ -20,6 +20,7 @@
 
       <!-- Botón descargar PDF -->
       <v-icon
+        v-if="item.estado == 'FINALIZADO'"
         size="22"
         style="cursor: pointer; color: white;"
         @click="descargarPdf(item.numero)"
