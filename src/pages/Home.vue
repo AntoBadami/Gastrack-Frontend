@@ -1,58 +1,29 @@
 <template>
   <MainLayout>
-    <v-container fluid class="pa-4">
-      <v-row>
+    <v-container fluid class="pa-0">
 
-        <!-- Columna izquierda -->
-        <v-col cols="12" md="8">
-          <h1 class="mb-4">Estadisticas Generales</h1>
-          <EstadisticasOrdenes />
+      <!-- Banner -->
+      <v-row no-gutters>
+        <v-col cols="12">
+          <v-img
+            src="@/assets/banner.png"
+            class="banner-img"
+            cover
+          >
+            <!-- Overlay opcional (por ahora vacío) -->
+          </v-img>
         </v-col>
-
-        <!-- panel de alarmas -->
-        <v-col cols="12" md="4">
-          <v-card class="pa-4" elevation="2" style="max-height: 80vh; overflow-y: auto;">
-            <h2 class="text-h6 mb-3">Alarmas</h2>
-
-            <!-- Placeholder visual -->
-            <div class="text-grey text-center py-6">
-              Alarmas activas
-            </div>
-
-            <!-- Ejemplos de alarmas -->
-            <v-list>
-              <v-list-item rounded class="mb-2 bg-red-lighten-4">
-                <v-list-item-title class="font-weight-bold">
-                  Alarma 
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  Ejemplo de descripción de alarma 
-                </v-list-item-subtitle>
-              </v-list-item>
-
-              <v-list-item rounded class="mb-2 bg-red-lighten-4">
-                <v-list-item-title class="font-weight-bold">
-                  Alarma 
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  Ejemplo de descripción de alarma 
-                </v-list-item-subtitle>
-              </v-list-item>
-
-              <v-list-item rounded class="mb-2 bg-red-lighten-4">
-                <v-list-item-title class="font-weight-bold">
-                  Alarma 
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  Ejemplo de descripción de alarma 
-                </v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-
-          </v-card>
-        </v-col>
-
       </v-row>
+
+      <v-container fluid class="pa-6">
+        <v-row>
+          <v-col cols="12">
+            <h1 class="mb-4">Estadísticas Generales</h1>
+            <EstadisticasOrdenes />
+          </v-col>
+        </v-row>
+      </v-container>
+
     </v-container>
   </MainLayout>
 </template>
