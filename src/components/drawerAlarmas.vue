@@ -135,8 +135,6 @@
         observacion: observaciones.value[alarma.numeroOrden] || '',
         usermail: auth.email,
       }
-      console.log('Aceptando alarma', payload)
-
       await api.put('/alarma/aceptar', payload, { withCredentials: true })
       emit('alarma-aceptada', alarma)
       dialog.value = false
