@@ -101,9 +101,9 @@ const opcionesAceptacion = [
 
 // headers para la tabla de alarmas
 const headers = [
-  { title: 'Fecha Emisión', value: 'fechaEmision' },
+  { title: 'Fecha Emisión', value: 'fecha' },
   { title: 'Fecha Aceptación', value: 'fechaAceptacion' },
-  { title: 'Tipo', value: 'tipo' },
+  { title: 'Tipo', value: 'tipoAlarma' },
   { title: 'Nro. Orden', value: 'numeroOrden' },
   { title: 'Aceptada', value: 'aceptada' },
   { title: 'Usuario', value: 'usuario' },
@@ -135,7 +135,7 @@ const cargarAlarmas = async () => {
       fechaEmisionISO: a['fecha'], 
       fechaEmision: new Date(a['fecha']).toLocaleString(),
       fechaAceptacion: a['fechaAceptacion'] ? new Date(a['fechaAceptacion']).toLocaleString() : null,
-      tipo: a.tipo,
+      tipoAlarma: a.tipoAlarma,
       numeroOrden: a['numeroOrden'],
       aceptada: a.aceptada,
       observacion: a.observacion,

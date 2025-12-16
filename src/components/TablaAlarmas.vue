@@ -4,7 +4,7 @@
       <tr :class="{ 'warning-row': !item.aceptada }"> 
         <td>{{ item.fechaEmision }}</td>
         <td>{{ item.fechaAceptacion || '---' }}</td>
-        <td>{{ item.tipo }}</td>
+        <td>{{ item.tipoAlarma }}</td>
         <td>{{ item.numeroOrden }}</td>
         <td>
           <v-chip :color="item.aceptada ? 'green' : 'white'" dark small>
