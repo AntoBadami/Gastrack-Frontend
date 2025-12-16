@@ -9,6 +9,7 @@
       <!-- links -->
       <v-btn text to="/home">Inicio</v-btn>
       <v-btn text to="/ordenes">Ordenes</v-btn>
+      <v-btn text to="/alarmas">Historial de alarmas</v-btn>
 
       <v-spacer />
 
@@ -31,6 +32,7 @@
 </template>
 
 <script setup>
+
   import { onUnmounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
   import api from '@/services/api'
