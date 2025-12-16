@@ -191,7 +191,7 @@
   import { calcularETA, formatearTiempo } from '@/services/calculos'
 
   import { descargarPdf } from '@/services/conciliacion.js'
-  import { conectarWebSocket, desuscribirCabecera } from '@/services/websocket'
+  import { conectarWebSocket, desuscribirCabecera } from '@/services/websocket/detalles'
   const graficosRef = ref(null)
 
   const route = useRoute()

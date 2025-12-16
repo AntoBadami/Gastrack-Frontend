@@ -1,21 +1,21 @@
 <template>
   <MainLayout>
-    <v-container fluid class="pa-0">
+    <v-container class="pa-0" fluid>
 
       <!-- Banner -->
       <v-row no-gutters>
         <v-col cols="12">
           <v-img
-            src="@/assets/banner.png"
             class="banner-img"
             cover
+            src="@/assets/banner.png"
           >
             <!-- Overlay opcional (por ahora vacío) -->
           </v-img>
         </v-col>
       </v-row>
 
-      <v-container fluid class="pa-6">
+      <v-container class="pa-6" fluid>
         <v-row>
           <v-col cols="12">
             <h1 class="mb-4">Estadísticas Generales</h1>
@@ -29,8 +29,8 @@
 </template>
 
 <script setup>
-  import MainLayout from '@/layouts/MainLayout.vue'
   import EstadisticasOrdenes from '@/components/EstadisticasOrdenes.vue'
+  import MainLayout from '@/layouts/MainLayout.vue'
 
 </script>
 
