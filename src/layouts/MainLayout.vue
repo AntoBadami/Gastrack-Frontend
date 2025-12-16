@@ -8,6 +8,7 @@
       <!-- links -->
       <v-btn text to="/home">Inicio</v-btn>
       <v-btn text to="/ordenes">Ordenes</v-btn>
+      <v-btn text to="/alarmas">Historial de alarmas</v-btn>
 
       <v-spacer />
 
