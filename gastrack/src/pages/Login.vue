@@ -42,6 +42,7 @@
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
   import api from '@/services/api'
+  import { useAuthStore } from '@/stores/auth'
 
   const email = ref('')
   const password = ref('')
@@ -49,16 +50,15 @@
   const error = ref('')
 
   const router = useRouter()
+  const authStore = useAuthStore()
 
   async function handleLogin () {
-    // Validaciones basicas
     if (!email.value || !password.value) {
       error.value = 'Completá todos los campos.'
       return
     }
 
     try {
-      // El backend espera username y password por form-urlencoded
       const params = new URLSearchParams()
       params.append('username', email.value)
       params.append('password', password.value)
@@ -69,7 +69,8 @@
 
       const token = res.data
 
-      localStorage.setItem('token', token)
+      // 👇 ACÁ está la diferencia importante
+      authStore.setToken(token)
 
       router.push('/home')
     } catch (error_) {
@@ -77,6 +78,7 @@
       error.value = 'Usuario o contraseña incorrectos.'
     }
   }
+
 </script>
 
 <style scoped>

@@ -4,7 +4,7 @@
     <v-row class="mb-6">
 
       <!-- Tarjeta Total -->
-      <v-col cols="12" sm="6" md="4">
+      <v-col cols="12" md="4" sm="6">
         <v-card class="pa-3" elevation="1">
           <h3 class="text-subtitle-1">Total de órdenes</h3>
           <p class="text-h5 font-weight-bold">{{ totalOrdenes }}</p>
@@ -16,8 +16,8 @@
         v-for="(cantidad, estado) in ordenesPorEstado"
         :key="estado"
         cols="12"
-        sm="6"
         md="4"
+        sm="6"
       >
         <v-card class="pa-3" elevation="1">
           <h3 class="text-subtitle-1">{{ estado }}</h3>
@@ -33,9 +33,9 @@
 
       <apexchart
         height="250"
-        type="pie"
         :options="chartOptions"
         :series="chartSeries"
+        type="pie"
       />
     </v-card>
 
@@ -65,48 +65,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue"
-import ApexChart from "vue3-apexcharts"
-import api from "@/services/api"
+  import { computed, onMounted, ref } from 'vue'
+  import ApexChart from 'vue3-apexcharts'
+  import api from '@/services/api'
 
-const apexchart = ApexChart
+  const apexchart = ApexChart
 
-const ordenes = ref([])
+  const ordenes = ref([])
 
-onMounted(async () => {
-  try {
-    const res = await api.get("/orden")
-    ordenes.value = res.data
-  } catch (error) {
-    console.error("Error obteniendo órdenes", error)
-  }
-})
-
-const totalOrdenes = computed(() => ordenes.value.length)
-
-// Agrupa por estado
-const ordenesPorEstado = computed(() => {
-  const est = {}
-  ordenes.value.forEach(o => {
-    est[o.estado] = (est[o.estado] || 0) + 1
+  onMounted(async () => {
+    try {
+      const res = await api.get('/orden')
+      ordenes.value = res.data
+    } catch (error) {
+      console.error('Error obteniendo órdenes', error)
+    }
   })
-  return est
-})
 
-// Datos para el grafico
-const chartSeries = computed(() =>
-  Object.values(ordenesPorEstado.value)
-)
+  const totalOrdenes = computed(() => ordenes.value.length)
 
-const chartOptions = computed(() => ({
-  labels: Object.keys(ordenesPorEstado.value),
-  legend: { position: "bottom" }
-}))
+  // Agrupa por estado
+  const ordenesPorEstado = computed(() => {
+    const est = {}
+    for (const o of ordenes.value) {
+      est[o.estado] = (est[o.estado] || 0) + 1
+    }
+    return est
+  })
 
-// Ultimas 5 ordenes
-const ultimasOrdenes = computed(() =>
-  [...ordenes.value].slice(-5)
-)
+  // Datos para el grafico
+  const chartSeries = computed(() =>
+    Object.values(ordenesPorEstado.value),
+  )
+
+  const chartOptions = computed(() => ({
+    labels: Object.keys(ordenesPorEstado.value),
+    legend: { position: 'bottom' },
+  }))
+
+  // Ultimas 5 ordenes
+  const ultimasOrdenes = computed(() =>
+    [...ordenes.value].slice(-5),
+  )
 </script>
 
 <style scoped>

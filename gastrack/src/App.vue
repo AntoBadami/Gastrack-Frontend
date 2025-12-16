@@ -1,9 +1,10 @@
-<template>
-  <v-app>
-    <router-view />
-  </v-app>
-</template>
-
 <script setup>
-  //
+  import { useAuthStore } from '@/stores/auth'
+
+  const authStore = useAuthStore()
+  authStore.loadFromStorage()
 </script>
+
+<template>
+  <router-view />
+</template>
