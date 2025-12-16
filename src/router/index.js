@@ -3,6 +3,7 @@ import Home from '@/pages/Home.vue'
 import Login from '@/pages/Login.vue'
 import OrdenDetalle from '@/pages/OrdenDetalle.vue'
 import Ordenes from '@/pages/Ordenes.vue'
+import HistoricoAlarmas from '@/pages/HistoricoAlarmas.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/orden/:numeroOrden',
     name: 'OrdenDetalle',
     component: OrdenDetalle,
+  },
+  {
+    path: '/alarmas',
+    name: 'Alarmas',
+    component: HistoricoAlarmas,
   },
 ]
 

@@ -19,6 +19,7 @@ declare module 'vue' {
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TablaAlarmas: typeof import('./src/components/TablaAlarmas.vue')['default']
     TablaOrdenes: typeof import('./src/components/TablaOrdenes.vue')['default']
   }
 }
