@@ -132,11 +132,11 @@ const cargarAlarmas = async () => {
     alarmas.value = res.data.map(a => ({
       // Almacenamos la fecha de emisión en formato ISO 8601 (YYYY-MM-DDTHH:mm:ss.sssZ) para fácil filtrado
       // y también la versión localizada para la vista.
-      fechaEmisionISO: a['fecha-emision'], 
-      fechaEmision: new Date(a['fecha-emision']).toLocaleString(),
-      fechaAceptacion: a['fecha-aceptacion'] ? new Date(a['fecha-aceptacion']).toLocaleString() : null,
+      fechaEmisionISO: a['fecha'], 
+      fechaEmision: new Date(a['fecha']).toLocaleString(),
+      fechaAceptacion: a['fechaAceptacion'] ? new Date(a['fechaAceptacion']).toLocaleString() : null,
       tipo: a.tipo,
-      numeroOrden: a['numero-orden'],
+      numeroOrden: a['numeroOrden'],
       aceptada: a.aceptada,
       observacion: a.observacion,
       usuario: a.usuario,
