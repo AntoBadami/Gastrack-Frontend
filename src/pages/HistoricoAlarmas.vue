@@ -57,17 +57,15 @@
           </div>
           <v-alert v-if="!cargando && alarmas.length > 0 && alarmasFiltradas.length === 0"
              type="info"
-             class="mt-4"
+             class="mt-4 border-s"
              prominent
-             border="left"
           >
             No se encontraron alarmas que coincidan con los filtros aplicados.
           </v-alert>
           <v-alert v-if="!cargando && alarmas.length === 0"
              type="warning"
-             class="mt-4"
+             class="mt-4 border-s"
              prominent
-             border="left"
           >
             No se ha encontrado historial de alarmas en el sistema.
           </v-alert>
