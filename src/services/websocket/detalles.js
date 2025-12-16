@@ -5,7 +5,7 @@ let subCabecera = null
 let subOrden = null
 
 export function conectarWebSocket (numero, onCabecera, onOrden) {
-  const socket = new SockJS('http://localhost:8080/websocket', null, {
+  const socket = new SockJS('https://lbiondi.mooo.com/websocket', null, {
     withCredentials: true,
   })
 

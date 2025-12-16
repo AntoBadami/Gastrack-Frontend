@@ -11,13 +11,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppFooter: typeof import('./src/components/AppFooter.vue')['default']
     DrawerAlarmas: typeof import('./src/components/drawerAlarmas.vue')['default']
     EstadisticasOrdenes: typeof import('./src/components/EstadisticasOrdenes.vue')['default']
     EstadoChip: typeof import('./src/components/EstadoChip.vue')['default']
     Filtro: typeof import('./src/components/Filtro.vue')['default']
     GraficosDetalles: typeof import('./src/components/GraficosDetalles.vue')['default']
-    HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TablaAlarmas: typeof import('./src/components/TablaAlarmas.vue')['default']
