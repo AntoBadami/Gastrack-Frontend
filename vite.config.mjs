@@ -79,7 +79,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'https://143.0.100.211',
+        target: 'https://lbiondi.mooo.com',
         changeOrigin: true,
         secure: false, // 🔥 ignora certificado inválido
       },
