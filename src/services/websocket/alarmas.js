@@ -7,7 +7,7 @@ let subs = []
 export function conectarAlarmasWS ({
   onNuevaAlarma,
 }) {
-  const socket = new SockJS('https://lbiondi.mooo.com/websocket')
+  const socket = new SockJS('https://gastrack.mooo.com/websocket')
 
   client = new Client({
     webSocketFactory: () => socket,
