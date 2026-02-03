@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://lbiondi.mooo.com/api/v1',
+  baseURL: 'https://gastrack.mooo.com/api/v1',
 })
 
 // Agregar el token automáticamente

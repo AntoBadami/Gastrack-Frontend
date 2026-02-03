@@ -79,7 +79,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'https://lbiondi.mooo.com',
+        target: 'https://gastrack.mooo.com',
         changeOrigin: true,
         secure: false, // 🔥 ignora certificado inválido
       },
