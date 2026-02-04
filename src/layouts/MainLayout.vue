@@ -3,7 +3,6 @@
 
     <!-- navbar -->
     <v-app-bar app color="primary" dark>
-      <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" />
       <v-toolbar-title class="font-weight-bold">Gastrack</v-toolbar-title>
 
       <!-- links -->
@@ -12,6 +11,14 @@
       <v-btn text to="/alarmas">Historial de alarmas</v-btn>
 
       <v-spacer />
+
+      <v-btn icon @click="drawer = !drawer" class="mr-2">
+        <v-badge :content="alarmas.length" :model-value="alarmas.length > 0" color="red">
+          <v-icon :color="alarmas.length > 0 ? 'red' : 'white'" :class="{ 'blink-icon': hayAlarmaNueva }">
+            mdi-alert-octagon
+          </v-icon>
+        </v-badge>
+      </v-btn>
 
       <!-- cerrar sesion -->
       <v-btn text @click="logout">
@@ -23,6 +30,17 @@
       :alarmas="alarmas"
       @alarma-aceptada="eliminarAlarma"
     />
+
+
+    <v-snackbar v-model="snackbar" color="red-darken-2" timeout="5000" location="bottom right">
+      🚨 Nueva alarma en orden #{{ ultimaAlarma?.numeroOrden }}
+
+      <template #actions>
+        <v-btn variant="text" @click="drawer = true">
+          Ver
+        </v-btn>
+      </template>
+    </v-snackbar>
 
     <v-main class="mt-4">
       <slot />
@@ -44,6 +62,8 @@
 
   const drawer = ref(false)
   const alarmas = ref([])
+  const hayAlarmaNueva = ref(false)
+
 
   function existe (alarma) {
     return alarmas.value.some(
@@ -72,12 +92,19 @@
         onNuevaAlarma (alarma) {
           if (!existe(alarma)) {
             alarmas.value.push(alarma)
+            hayAlarmaNueva.value = true
           }
         },
       })
     },
     { immediate: true },
   )
+
+  watch(drawer, (abierto) => {
+  if (abierto) {
+    hayAlarmaNueva.value = false
+  }
+  })
 
   onUnmounted(() => {
     desconectarAlarmasWS()
@@ -97,3 +124,16 @@
     router.push('/')
   }
 </script>
+
+<style scoped>
+.blink-icon {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+</style>
