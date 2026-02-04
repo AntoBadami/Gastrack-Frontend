@@ -44,7 +44,7 @@ const router = createRouter({
   routes,
 })
 
-//proteccion de rutas
+//verificacion de tokens en rutas
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
 
