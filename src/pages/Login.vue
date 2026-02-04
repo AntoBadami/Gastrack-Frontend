@@ -1,40 +1,54 @@
 <template>
-  <v-container class="fill-height d-flex justify-center align-center">
-    <v-card class="pa-6 elevation-4 rounded-lg" width="400">
+  <v-container fluid class="login-container d-flex justify-center align-center">
+    <div class="login-wrapper">
 
-      <v-card-title class="text-h5 text-center">Iniciar Sesión</v-card-title>
+      <!-- 🔹 Branding del sistema -->
+      <div class="brand text-center mb-8">
+        <h1 class="brand-title">GASTRACK</h1>
+        <p class="brand-subtitle">CARGA DE CAMIONES DE GAS</p>
+      </div>
 
-      <v-card-text>
+      <!-- 🔹 Card de Login -->
+      <v-card class="pa-6 elevation-6 rounded-xl login-card">
+        <v-card-title class="text-h5 text-center">
+          Iniciar Sesión
+        </v-card-title>
 
-        <v-alert
-          v-if="error"
-          class="mb-3"
-          closable
-          type="error"
-          @click:close="error = ''"
-        >
-          {{ error }}
-        </v-alert>
+        <v-card-text>
+          <v-alert
+            v-if="error"
+            class="mb-3"
+            closable
+            type="error"
+            @click:close="error = ''"
+          >
+            {{ error }}
+          </v-alert>
 
-        <v-form @submit.prevent="handleLogin">
-          <v-text-field v-model="email" label="Usuario" prepend-inner-icon="mdi-email" />
+          <v-form @submit.prevent="handleLogin">
+            <v-text-field
+              v-model="email"
+              label="Usuario"
+              prepend-inner-icon="mdi-email"
+            />
 
-          <v-text-field
-            v-model="password"
-            :append-inner-icon="showPass ? 'mdi-eye-off' : 'mdi-eye'"
-            label="Contraseña"
-            prepend-inner-icon="mdi-lock"
-            :type="showPass ? 'text' : 'password'"
-            @click:append-inner="showPass = !showPass"
-          />
+            <v-text-field
+              v-model="password"
+              :append-inner-icon="showPass ? 'mdi-eye-off' : 'mdi-eye'"
+              label="Contraseña"
+              prepend-inner-icon="mdi-lock"
+              :type="showPass ? 'text' : 'password'"
+              @click:append-inner="showPass = !showPass"
+            />
 
-          <v-btn block class="mt-4" color="primary" type="submit">
-            Ingresar
-          </v-btn>
-        </v-form>
+            <v-btn block class="mt-4" color="primary" type="submit">
+              Ingresar
+            </v-btn>
+          </v-form>
+        </v-card-text>
+      </v-card>
 
-      </v-card-text>
-    </v-card>
+    </div>
   </v-container>
 </template>
 
@@ -82,7 +96,37 @@
 </script>
 
 <style scoped>
-.fill-height {
-    height: 100vh;
+.login-container {
+  height: 100vh;
+  background: radial-gradient(
+    circle at center,
+    #2c2f3a 0%,
+    #1e1f26 60%,
+    #15161c 100%
+  );
 }
+
+.login-wrapper {
+  width: 100%;
+  max-width: 420px;            /* limita ancho del conjunto */
+}
+
+.brand-title {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: 4px;         /* separación tipo logo */
+  color: #ffffff;
+}
+
+.brand-subtitle {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: #cccccc;
+}
+
+.login-card {
+  backdrop-filter: blur(6px);  /* efecto moderno opcional */
+}
+
 </style>
+
