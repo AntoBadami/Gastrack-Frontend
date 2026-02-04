@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer
-    location="left"
+    location="right"
     :model-value="modelValue"
     temporary
     width="400"
