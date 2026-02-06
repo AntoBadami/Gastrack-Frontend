@@ -1,7 +1,43 @@
 <template>
   <MainLayout>
     <v-container class="pa-4">
-      <h1>Histórico de Alarmas</h1>
+      <v-row class="mb-6">
+        <v-col>
+          <h1 class="text-h4 font-weight-bold">
+            Histórico de Alarmas
+          </h1>
+        </v-col>
+      </v-row>
+
+      <v-row class="mb-6">
+        <v-col cols="12" md="4">
+          <v-card elevation="3">
+            <v-card-title>Alarmas Hoy</v-card-title>
+            <v-card-text class="text-h4 font-weight-bold">
+              {{ alarmasHoy }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card elevation="3">
+            <v-card-title>Alarmas del Mes</v-card-title>
+            <v-card-text class="text-h4 font-weight-bold">
+              {{ alarmasMes }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card elevation="3">
+            <v-card-title>Promedio de Aceptación</v-card-title>
+            <v-card-text class="text-h4 font-weight-bold">
+              {{ promedioAceptacion }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
 
       <v-row class="mb-4" align="center">
 
@@ -76,11 +112,49 @@ import api from '@/services/api'
 const alarmas = ref([])
 const cargando = ref(false)
 const busquedaNumero = ref("")
-const filtroAceptacion = ref(null)
 
 // Nuevos filtros de fecha
 const fechaDesde = ref(null)
 const fechaHasta = ref(null)
+
+const ahora = new Date()
+
+const alarmasHoy = computed(() => {
+  return alarmas.value.filter(a => {
+    const fecha = new Date(a.fechaEmisionISO)
+    return fecha.toDateString() === ahora.toDateString()
+  }).length
+})
+
+const alarmasMes = computed(() => {
+  return alarmas.value.filter(a => {
+    const fecha = new Date(a.fechaEmisionISO)
+    return (
+      fecha.getMonth() === ahora.getMonth() &&
+      fecha.getFullYear() === ahora.getFullYear()
+    )
+  }).length
+})
+
+const promedioAceptacion = computed(() => {
+  const aceptadas = alarmas.value.filter(a => a.fechaAceptacionISO)
+
+  if (!aceptadas.length) return '—'
+
+  const totalMs = aceptadas.reduce((acc, a) => {
+    return acc + (
+      new Date(a.fechaAceptacionISO).getTime() -
+      new Date(a.fechaEmisionISO).getTime()
+    )
+  }, 0)
+
+  const promedioMs = totalMs / aceptadas.length
+
+  const minutos = Math.floor(promedioMs / 60000)
+  const segundos = Math.floor((promedioMs % 60000) / 1000)
+
+  return `${minutos}m ${segundos}s`
+})
 
 // Opciones para el v-select de filtroAceptacion
 const opcionesAceptacion = [
@@ -121,9 +195,13 @@ const cargarAlarmas = async () => {
     alarmas.value = res.data.map(a => ({
       // Almacenamos la fecha de emisión en formato ISO 8601 (YYYY-MM-DDTHH:mm:ss.sssZ) para fácil filtrado
       // y también la versión localizada para la vista.
-      fechaEmisionISO: a['fecha'], 
-      fechaEmision: new Date(a['fecha']).toLocaleString(),
-      fechaAceptacion: a['fechaAceptacion'] ? new Date(a['fechaAceptacion']).toLocaleString() : null,
+      fechaEmisionISO: a.fecha,
+      fechaEmision: new Date(a.fecha).toLocaleString(),
+
+      fechaAceptacionISO: a.fechaAceptacion || null,
+      fechaAceptacion: a.fechaAceptacion
+        ? new Date(a.fechaAceptacion).toLocaleString()
+        : null,
       tipoAlarma: a.tipoAlarma,
       numeroOrden: a['numeroOrden'],
       aceptada: a.aceptada,
