@@ -16,16 +16,6 @@
         </v-col>
 
         <v-col cols="12" sm="3">
-          <v-select
-            label="Filtro de Aceptación"
-            :items="opcionesAceptacion"
-            v-model="filtroAceptacion"
-            clearable
-            prepend-icon="mdi-check-circle-outline"
-          ></v-select>
-        </v-col>
-
-        <v-col cols="12" sm="3">
           <v-text-field
             label="Fecha Emisión (Desde)"
             v-model="fechaDesde"
@@ -105,7 +95,6 @@ const headers = [
   { title: 'Fecha Aceptación', value: 'fechaAceptacion' },
   { title: 'Tipo', value: 'tipoAlarma' },
   { title: 'Nro. Orden', value: 'numeroOrden' },
-  { title: 'Aceptada', value: 'aceptada' },
   { title: 'Usuario', value: 'usuario' },
   { title: 'Observación', value: 'observacion', sortable: false },
 ]
@@ -152,11 +141,6 @@ const cargarAlarmas = async () => {
 const alarmasFiltradas = computed(() => {
   let lista = [...alarmas.value]
 
-  // Filtro por estado de Aceptación
-  if (filtroAceptacion.value !== null) {
-    lista = lista.filter(a => a.aceptada === filtroAceptacion.value)
-  }
-
   // Filtro por número de orden
   if (busquedaNumero.value) {
     const texto = busquedaNumero.value.toString().trim()
@@ -180,6 +164,15 @@ const alarmasFiltradas = computed(() => {
       return esPosteriorAInicio && esAnteriorAFin
     })
   }
+   lista.sort((a, b) => {
+    // No aceptadas primero
+    if (a.aceptada !== b.aceptada) {
+      return a.aceptada ? 1 : -1
+    }
+
+    //Más recientes primero
+    return new Date(b.fechaEmisionISO) - new Date(a.fechaEmisionISO)
+  })
 
   return lista
 })
