@@ -70,9 +70,13 @@
             prepend-icon="mdi-calendar-end"
           />
         </v-col>
+        <v-col class="text-right">
+          <v-btn color="primary" @click="exportarCSV">
+            Exportar CSV
+          </v-btn>
+        </v-col>
 
       </v-row>
-
       <v-card>
         <v-card-text>
           <TablaAlarmas :headers="headers" :items="alarmasFiltradas" />
@@ -257,4 +261,39 @@ const alarmasFiltradas = computed(() => {
 
 //Ejecutar la carga al montar el componente
 onMounted(cargarAlarmas)
+
+function exportarCSV () {
+  if (!alarmasFiltradas.value.length) return
+
+  const headers = [
+    'Fecha Emisión',
+    'Fecha Aceptación',
+    'Tipo',
+    'Nro Orden',
+    'Usuario',
+    'Observación'
+  ]
+
+  const filas = alarmasFiltradas.value.map(a => [
+    a.fechaEmision,
+    a.fechaAceptacion || '',
+    a.tipoAlarma,
+    a.numeroOrden,
+    a.usuario || '',
+    a.observacion || ''
+  ])
+
+  const contenido = [
+    headers.join(','),
+    ...filas.map(f => f.join(','))
+  ].join('\n')
+
+  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'historial_alarmas.csv'
+  link.click()
+}
 </script>
