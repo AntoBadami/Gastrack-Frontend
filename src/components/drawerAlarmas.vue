@@ -137,6 +137,7 @@
       }
       await api.put('/alarma/aceptar', payload, { withCredentials: true })
       emit('alarma-aceptada', alarma)
+      delete observaciones.value[alarma.numeroOrden]
       dialog.value = false
     } catch (error) {
       console.error('Error aceptando alarma', error)
