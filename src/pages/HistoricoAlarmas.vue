@@ -38,6 +38,23 @@
         </v-col>
       </v-row>
 
+      <v-row class="mb-6">
+        <v-col cols="12">
+          <v-card elevation="3">
+            <v-card-title>Alarmas por Día</v-card-title>
+            <v-card-text>
+              <div v-if="alarmasFiltradas.length === 0" class="text-center py-6 text-medium-emphasis">
+                No hay datos de alarmas para mostrar.
+              </div>
+
+              <div v-else class="grafico-container">
+                <canvas ref="chartRef"></canvas>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
 
       <v-row class="mb-4" align="center">
 
@@ -108,10 +125,16 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, nextTick, watch} from 'vue'
 import TablaAlarmas from '@/components/TablaAlarmas.vue' 
 import MainLayout from '@/layouts/MainLayout.vue'
 import api from '@/services/api'
+import { Chart, registerables } from 'chart.js'
+
+Chart.register(...registerables)
+
+const chartRef = ref(null)
+let chartInstance = null
 
 const alarmas = ref([])
 const cargando = ref(false)
@@ -216,6 +239,9 @@ const cargarAlarmas = async () => {
     console.error('ERROR al cargar las alarmas:', error)
   } finally {
     cargando.value = false
+    nextTick(() => {
+      crearGrafico()
+    })
   }
 }
 
@@ -262,6 +288,13 @@ const alarmasFiltradas = computed(() => {
 //Ejecutar la carga al montar el componente
 onMounted(cargarAlarmas)
 
+watch(alarmasFiltradas, () => {
+  nextTick(() => {
+    crearGrafico()
+  })
+})
+
+
 function exportarCSV () {
   if (!alarmasFiltradas.value.length) return
 
@@ -296,4 +329,57 @@ function exportarCSV () {
   link.download = 'historial_alarmas.csv'
   link.click()
 }
+
+const alarmasPorDia = computed(() => {
+  const mapa = {}
+
+  alarmasFiltradas.value.forEach(a => {
+    const fecha = new Date(a.fechaEmisionISO)
+    const key = fecha.toISOString().slice(0, 10)
+
+    if (!mapa[key]) mapa[key] = 0
+    mapa[key]++
+  })
+
+  return mapa
+})
+
+
+function crearGrafico () {
+  if (!chartRef.value) return
+
+  const labels = Object.keys(alarmasPorDia.value).sort()
+  const data = labels.map(l => alarmasPorDia.value[l])
+
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
+
+  chartInstance = new Chart(chartRef.value, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Alarmas por día',
+        data,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  })
+}
 </script>
+<style scoped>
+.grafico-container {
+  width: 100%;
+  height: 220px; /* Ajustá entre 180 y 250 según lo que te guste */
+  margin-bottom: 24px;
+}
+
+</style>
