@@ -31,12 +31,17 @@
       @alarma-aceptada="eliminarAlarma"
     />
 
+    <v-snackbar v-model="snackbar" color="red-darken-2" timeout="5000" location="bottom right" elevation="24">
+      <div class="d-flex align-center font-weight-bold">
+        <v-icon color="white" size="24" class="mr-3">
+          mdi-alert-octagon
+        </v-icon>
 
-    <v-snackbar v-model="snackbar" color="red-darken-2" timeout="5000" location="bottom right">
-      🚨 Nueva alarma en orden #{{ ultimaAlarma?.numeroOrden }}
+        Nueva alarma en orden #{{ ultimaAlarma?.numeroOrden }}
+      </div>
 
       <template #actions>
-        <v-btn variant="text" @click="drawer = true">
+        <v-btn variant="text" @click="drawer = true; snackbar = false">
           Ver
         </v-btn>
       </template>
@@ -63,6 +68,9 @@
   const drawer = ref(false)
   const alarmas = ref([])
   const hayAlarmaNueva = ref(false)
+
+  const snackbar = ref(false)
+  const ultimaAlarma = ref(null)
 
 
   function existe (alarma) {
@@ -93,6 +101,9 @@
           if (!existe(alarma)) {
             alarmas.value.push(alarma)
             hayAlarmaNueva.value = true
+
+            ultimaAlarma.value = alarma
+            snackbar.value = true
           }
         },
       })

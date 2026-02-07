@@ -1,7 +1,60 @@
 <template>
   <MainLayout>
     <v-container class="pa-4">
-      <h1>Histórico de Alarmas</h1>
+      <v-row class="mb-6">
+        <v-col>
+          <h1 class="text-h4 font-weight-bold">
+            Histórico de Alarmas
+          </h1>
+        </v-col>
+      </v-row>
+
+      <v-row class="mb-6">
+        <v-col cols="12" md="4">
+          <v-card elevation="3">
+            <v-card-title>Alarmas Hoy</v-card-title>
+            <v-card-text class="text-h4 font-weight-bold">
+              {{ alarmasHoy }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card elevation="3">
+            <v-card-title>Alarmas del Mes</v-card-title>
+            <v-card-text class="text-h4 font-weight-bold">
+              {{ alarmasMes }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card elevation="3">
+            <v-card-title>Promedio de Aceptación</v-card-title>
+            <v-card-text class="text-h4 font-weight-bold">
+              {{ promedioAceptacion }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <v-row class="mb-6">
+        <v-col cols="12">
+          <v-card elevation="3">
+            <v-card-title>Alarmas por Día</v-card-title>
+            <v-card-text>
+              <div v-if="alarmasFiltradas.length === 0" class="text-center py-6 text-medium-emphasis">
+                No hay datos de alarmas para mostrar.
+              </div>
+
+              <div v-else class="grafico-container">
+                <canvas ref="chartRef"></canvas>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
 
       <v-row class="mb-4" align="center">
 
@@ -13,16 +66,6 @@
             clearable
             prepend-icon="mdi-magnify"
           />
-        </v-col>
-
-        <v-col cols="12" sm="3">
-          <v-select
-            label="Filtro de Aceptación"
-            :items="opcionesAceptacion"
-            v-model="filtroAceptacion"
-            clearable
-            prepend-icon="mdi-check-circle-outline"
-          ></v-select>
         </v-col>
 
         <v-col cols="12" sm="3">
@@ -44,9 +87,13 @@
             prepend-icon="mdi-calendar-end"
           />
         </v-col>
+        <v-col class="text-right">
+          <v-btn color="primary" @click="exportarCSV">
+            Exportar CSV
+          </v-btn>
+        </v-col>
 
       </v-row>
-
       <v-card>
         <v-card-text>
           <TablaAlarmas :headers="headers" :items="alarmasFiltradas" />
@@ -78,19 +125,63 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, nextTick, watch} from 'vue'
 import TablaAlarmas from '@/components/TablaAlarmas.vue' 
 import MainLayout from '@/layouts/MainLayout.vue'
 import api from '@/services/api'
+import { Chart, registerables } from 'chart.js'
+
+Chart.register(...registerables)
+
+const chartRef = ref(null)
+let chartInstance = null
 
 const alarmas = ref([])
 const cargando = ref(false)
 const busquedaNumero = ref("")
-const filtroAceptacion = ref(null)
 
 // Nuevos filtros de fecha
 const fechaDesde = ref(null)
 const fechaHasta = ref(null)
+
+const ahora = new Date()
+
+const alarmasHoy = computed(() => {
+  return alarmas.value.filter(a => {
+    const fecha = new Date(a.fechaEmisionISO)
+    return fecha.toDateString() === ahora.toDateString()
+  }).length
+})
+
+const alarmasMes = computed(() => {
+  return alarmas.value.filter(a => {
+    const fecha = new Date(a.fechaEmisionISO)
+    return (
+      fecha.getMonth() === ahora.getMonth() &&
+      fecha.getFullYear() === ahora.getFullYear()
+    )
+  }).length
+})
+
+const promedioAceptacion = computed(() => {
+  const aceptadas = alarmas.value.filter(a => a.fechaAceptacionISO)
+
+  if (!aceptadas.length) return '—'
+
+  const totalMs = aceptadas.reduce((acc, a) => {
+    return acc + (
+      new Date(a.fechaAceptacionISO).getTime() -
+      new Date(a.fechaEmisionISO).getTime()
+    )
+  }, 0)
+
+  const promedioMs = totalMs / aceptadas.length
+
+  const minutos = Math.floor(promedioMs / 60000)
+  const segundos = Math.floor((promedioMs % 60000) / 1000)
+
+  return `${minutos}m ${segundos}s`
+})
 
 // Opciones para el v-select de filtroAceptacion
 const opcionesAceptacion = [
@@ -105,7 +196,6 @@ const headers = [
   { title: 'Fecha Aceptación', value: 'fechaAceptacion' },
   { title: 'Tipo', value: 'tipoAlarma' },
   { title: 'Nro. Orden', value: 'numeroOrden' },
-  { title: 'Aceptada', value: 'aceptada' },
   { title: 'Usuario', value: 'usuario' },
   { title: 'Observación', value: 'observacion', sortable: false },
 ]
@@ -132,9 +222,13 @@ const cargarAlarmas = async () => {
     alarmas.value = res.data.map(a => ({
       // Almacenamos la fecha de emisión en formato ISO 8601 (YYYY-MM-DDTHH:mm:ss.sssZ) para fácil filtrado
       // y también la versión localizada para la vista.
-      fechaEmisionISO: a['fecha'], 
-      fechaEmision: new Date(a['fecha']).toLocaleString(),
-      fechaAceptacion: a['fechaAceptacion'] ? new Date(a['fechaAceptacion']).toLocaleString() : null,
+      fechaEmisionISO: a.fecha,
+      fechaEmision: new Date(a.fecha).toLocaleString(),
+
+      fechaAceptacionISO: a.fechaAceptacion || null,
+      fechaAceptacion: a.fechaAceptacion
+        ? new Date(a.fechaAceptacion).toLocaleString()
+        : null,
       tipoAlarma: a.tipoAlarma,
       numeroOrden: a['numeroOrden'],
       aceptada: a.aceptada,
@@ -145,17 +239,15 @@ const cargarAlarmas = async () => {
     console.error('ERROR al cargar las alarmas:', error)
   } finally {
     cargando.value = false
+    nextTick(() => {
+      crearGrafico()
+    })
   }
 }
 
 //Filtro Computado
 const alarmasFiltradas = computed(() => {
   let lista = [...alarmas.value]
-
-  // Filtro por estado de Aceptación
-  if (filtroAceptacion.value !== null) {
-    lista = lista.filter(a => a.aceptada === filtroAceptacion.value)
-  }
 
   // Filtro por número de orden
   if (busquedaNumero.value) {
@@ -180,10 +272,114 @@ const alarmasFiltradas = computed(() => {
       return esPosteriorAInicio && esAnteriorAFin
     })
   }
+   lista.sort((a, b) => {
+    // No aceptadas primero
+    if (a.aceptada !== b.aceptada) {
+      return a.aceptada ? 1 : -1
+    }
+
+    //Más recientes primero
+    return new Date(b.fechaEmisionISO) - new Date(a.fechaEmisionISO)
+  })
 
   return lista
 })
 
 //Ejecutar la carga al montar el componente
 onMounted(cargarAlarmas)
+
+watch(alarmasFiltradas, () => {
+  nextTick(() => {
+    crearGrafico()
+  })
+})
+
+
+function exportarCSV () {
+  if (!alarmasFiltradas.value.length) return
+
+  const headers = [
+    'Fecha Emisión',
+    'Fecha Aceptación',
+    'Tipo',
+    'Nro Orden',
+    'Usuario',
+    'Observación'
+  ]
+
+  const filas = alarmasFiltradas.value.map(a => [
+    a.fechaEmision,
+    a.fechaAceptacion || '',
+    a.tipoAlarma,
+    a.numeroOrden,
+    a.usuario || '',
+    a.observacion || ''
+  ])
+
+  const contenido = [
+    headers.join(','),
+    ...filas.map(f => f.join(','))
+  ].join('\n')
+
+  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'historial_alarmas.csv'
+  link.click()
+}
+
+const alarmasPorDia = computed(() => {
+  const mapa = {}
+
+  alarmasFiltradas.value.forEach(a => {
+    const fecha = new Date(a.fechaEmisionISO)
+    const key = fecha.toISOString().slice(0, 10)
+
+    if (!mapa[key]) mapa[key] = 0
+    mapa[key]++
+  })
+
+  return mapa
+})
+
+
+function crearGrafico () {
+  if (!chartRef.value) return
+
+  const labels = Object.keys(alarmasPorDia.value).sort()
+  const data = labels.map(l => alarmasPorDia.value[l])
+
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
+
+  chartInstance = new Chart(chartRef.value, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Alarmas por día',
+        data,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  })
+}
 </script>
+<style scoped>
+.grafico-container {
+  width: 100%;
+  height: 220px; /* Ajustá entre 180 y 250 según lo que te guste */
+  margin-bottom: 24px;
+}
+
+</style>
