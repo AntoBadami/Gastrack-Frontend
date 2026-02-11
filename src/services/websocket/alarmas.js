@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/prefer-single-call */
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 
@@ -8,7 +7,7 @@ let subs = []
 export function conectarAlarmasWS ({
   onNuevaAlarma,
 }) {
-  const socket = new SockJS('http://localhost:8080/websocket')
+  const socket = new SockJS('https://gastrack.mooo.com/websocket')
 
   client = new Client({
     webSocketFactory: () => socket,

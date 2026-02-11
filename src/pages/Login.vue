@@ -83,7 +83,6 @@
 
       const token = res.data
 
-      // 👇 ACÁ está la diferencia importante
       authStore.setToken(token)
 
       router.push('/home')
