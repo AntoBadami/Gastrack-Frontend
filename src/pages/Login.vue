@@ -2,13 +2,13 @@
   <v-container fluid class="login-container d-flex justify-center align-center">
     <div class="login-wrapper">
 
-      <!-- 🔹 Branding del sistema -->
+      <!-- Branding del sistema -->
       <div class="brand text-center mb-8">
         <h1 class="brand-title">GASTRACK</h1>
         <p class="brand-subtitle">CARGA DE CAMIONES DE GAS</p>
       </div>
 
-      <!-- 🔹 Card de Login -->
+      <!-- Card de Login -->
       <v-card class="pa-6 elevation-6 rounded-xl login-card">
         <v-card-title class="text-h5 text-center">
           Iniciar Sesión
@@ -107,13 +107,13 @@
 
 .login-wrapper {
   width: 100%;
-  max-width: 420px;            /* limita ancho del conjunto */
+  max-width: 420px;       
 }
 
 .brand-title {
   font-size: 48px;
   font-weight: 800;
-  letter-spacing: 4px;         /* separación tipo logo */
+  letter-spacing: 4px;       
   color: #ffffff;
 }
 
@@ -124,7 +124,7 @@
 }
 
 .login-card {
-  backdrop-filter: blur(6px);  /* efecto moderno opcional */
+  backdrop-filter: blur(6px);  
 }
 
 </style>
